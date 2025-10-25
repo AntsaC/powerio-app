@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Project;
+use App\Models\Quotation;
+use App\Models\QuotationLine;
 use App\Models\SolarPanel;
 use App\Models\User;
+use Database\Factories\QuotationFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -24,10 +27,12 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Seed solar panels
-        SolarPanel::factory(20)->create();
+        SolarPanel::factory(5)->create();
 
-        // Seed projects
-        Project::factory(15)->create();
+        Project::factory(5)->create();
+
+        Quotation::factory(5)->create();
+
+        QuotationLine::factory(10)->create();
     }
 }
