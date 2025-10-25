@@ -96,10 +96,10 @@
                                     <div class="mt-2 pt-2 border-t border-blue-200 dark:border-blue-700">
                                         <div class="flex items-center gap-4 text-xs">
                                             <span class="text-blue-700 dark:text-blue-300">
-                                                <span class="font-medium">Lat:</span> {{ number_format($record->latitude, 6) }}
+                                                <span class="font-medium">Latitude:</span> {{ number_format($record->latitude, 6) }}
                                             </span>
                                             <span class="text-blue-700 dark:text-blue-300">
-                                                <span class="font-medium">Long:</span> {{ number_format($record->longitude, 6) }}
+                                                <span class="font-medium">Longitude:</span> {{ number_format($record->longitude, 6) }}
                                             </span>
                                         </div>
                                     </div>
