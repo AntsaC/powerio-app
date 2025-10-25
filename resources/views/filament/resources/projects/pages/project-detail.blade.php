@@ -79,6 +79,9 @@
                             </div>
                         @endif
 
+                        {{-- Sunshine Hours Card --}}
+                        <x-sunshine-hours-card :project="$record" />
+
                         @if($record->location)
                             <div class="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
                                 <div class="flex items-center gap-2 mb-2">
@@ -106,7 +109,8 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </x-project-detail-layout>
-    
+
 </x-filament-panels::page>
