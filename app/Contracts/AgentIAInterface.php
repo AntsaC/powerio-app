@@ -9,10 +9,5 @@ interface AgentIAInterface
 
     public function sendMessageWithJsonOutput(string $message, array $jsonSchema = []): array;
 
-    /**
-     * Get the agent name/identifier.
-     *
-     * @return string The agent name
-     */
     public function getAgentName(): string;
 }

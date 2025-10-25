@@ -23,6 +23,8 @@ class Project extends Model
         'longitude',
         'system_capacity',
         'installation_type',
+        'start_sunshine_hours',
+        'end_sunshine_hours',
     ];
 
     /**
@@ -33,6 +35,6 @@ class Project extends Model
     protected $casts = [
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
-        'system_capacity' => 'decimal:2',
+        'system_capacity' => 'decimal:2'
     ];
 }
