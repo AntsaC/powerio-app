@@ -8,9 +8,6 @@ use Illuminate\Support\Collection;
 
 class QuotationOptionService
 {
-    /**
-     * Get selected options by IDs
-     */
     public function getSelectedOptions(array $optionIds): Collection
     {
         if (empty($optionIds)) {
@@ -20,17 +17,11 @@ class QuotationOptionService
         return Option::whereIn('id', $optionIds)->get();
     }
 
-    /**
-     * Calculate subtotal for options
-     */
     public function calculateSubtotal(Collection $selectedOptions): float
     {
         return $selectedOptions->sum('price');
     }
 
-    /**
-     * Add option lines to the quotation
-     */
     public function addLinesToQuotation(Quotation $quotation, Collection $selectedOptions): void
     {
         foreach ($selectedOptions as $option) {
@@ -46,9 +37,6 @@ class QuotationOptionService
         }
     }
 
-    /**
-     * Format option description for quotation line
-     */
     private function formatDescription(Option $option): string
     {
         $description = $option->name;

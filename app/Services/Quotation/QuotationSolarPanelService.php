@@ -9,9 +9,7 @@ use App\Models\Quotation;
 
 class QuotationSolarPanelService
 {
-    /**
-     * Calculate solar panels using the specified strategy
-     */
+
     public function calculate(Project $project, string $strategyClass): ?SolarPanelCalculationDTO
     {
         $this->validateStrategyClass($strategyClass);
@@ -20,9 +18,6 @@ class QuotationSolarPanelService
         return $strategy->calculate($project);
     }
 
-    /**
-     * Calculate subtotal for solar panels
-     */
     public function calculateSubtotal(SolarPanelCalculationDTO $calculation): float
     {
         return collect($calculation->solarPanels)->sum(function ($item) {
@@ -30,9 +25,6 @@ class QuotationSolarPanelService
         });
     }
 
-    /**
-     * Add solar panel lines to the quotation
-     */
     public function addLinesToQuotation(
         Quotation $quotation,
         SolarPanelCalculationDTO $calculation
@@ -51,9 +43,6 @@ class QuotationSolarPanelService
         }
     }
 
-    /**
-     * Validate that the provided class is a valid strategy
-     */
     private function validateStrategyClass(string $strategyClass): void
     {
         if (!is_subclass_of($strategyClass, SolarPanelCalculatorStrategy::class)) {
@@ -61,16 +50,12 @@ class QuotationSolarPanelService
         }
     }
 
-    /**
-     * Format solar panel description for quotation line
-     */
     private function formatDescription($solarPanel): string
     {
         return sprintf(
-            '%s (%s - %s)',
+            '%s (%s W)',
             $solarPanel->name,
-            $solarPanel->manufacturer,
-            $solarPanel->model
+            $solarPanel->nominal_power
         );
     }
 }

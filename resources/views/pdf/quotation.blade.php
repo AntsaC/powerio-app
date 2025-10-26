@@ -219,7 +219,7 @@
             @endif
         </div>
 
-        <div class="info-block">
+        <div class="info-block text-right">
             <h3>Project Information</h3>
             <p><strong>{{ $project->name }}</strong></p>
             @if($project->location)
