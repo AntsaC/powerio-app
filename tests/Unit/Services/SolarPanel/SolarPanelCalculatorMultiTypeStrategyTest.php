@@ -53,7 +53,7 @@ class SolarPanelCalculatorMultiTypeStrategyTest extends TestCase
         $collection = new Collection([$panel3, $panel2, $panel1]);
 
         $this->mock(SolarPanelRepository::class, function ($mock) use ($collection) {
-            $mock->shouldReceive('getAllOrderedByCapacity')
+            $mock->shouldReceive('getAllOrderedByNominalPower')
                 ->byDefault()
                 ->andReturn($collection);
         });

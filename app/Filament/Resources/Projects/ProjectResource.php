@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Projects;
 
+use App\Filament\Resources\Projects\Pages\GenerateQuotation;
 use App\Filament\Resources\Projects\Pages\ManageProjects;
 use App\Filament\Resources\Projects\Pages\ProjectDetail;
 use App\Filament\Resources\Projects\Pages\ProjectQuotations;
@@ -116,7 +117,8 @@ class ProjectResource extends Resource
         return [
             'index' => ManageProjects::route('/'),
             'detail' => ProjectDetail::route('/{record}'),
-            'quotations' => ProjectQuotations::route('/{record}/quotations')
+            'quotations' => ProjectQuotations::route('/{record}/quotations'),
+            'generate-quotation' => GenerateQuotation::route('/{record}/quotations/generate')
         ];
     }
 }

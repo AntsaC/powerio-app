@@ -9,7 +9,7 @@
                     </h3>
                     <x-filament::button
                         tag="a"
-                        href="#"
+                        href="{{ \App\Filament\Resources\Projects\Pages\GenerateQuotation::getUrl([$record]) }}"
                         color="primary"
                     >
                         Generate New Quotation
@@ -80,23 +80,49 @@
 
                                     {{-- Quotation Lines Summary --}}
                                     @if($quotation->lines->isNotEmpty())
-                                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                            <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Line Items ({{ $quotation->lines->count() }})</h5>
-                                            <div class="space-y-2">
-                                                @foreach($quotation->lines->take(3) as $line)
-                                                    <div class="flex justify-between items-center text-sm">
-                                                        <span class="text-gray-600 dark:text-gray-400">
-                                                            {{ $line->description ?? 'Item' }} ({{ $line->quantity }}x)
-                                                        </span>
-                                                        <span class="text-gray-900 dark:text-white font-medium">
-                                                            ${{ number_format($line->total_price, 2) }}
-                                                        </span>
+                                        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <h5 class="text-base font-semibold text-gray-900 dark:text-white">Line Items</h5>
+                                                <x-filament::badge size="sm">
+                                                    {{ $quotation->lines->count() }} {{ Str::plural('item', $quotation->lines->count()) }}
+                                                </x-filament::badge>
+                                            </div>
+
+                                            <div class="space-y-3">
+                                                @foreach($quotation->lines->take(5) as $line)
+                                                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
+                                                        <div class="flex justify-between items-start gap-4">
+                                                            <div class="flex-1 min-w-0">
+                                                                <p class="text-sm font-medium text-gray-900 dark:text-white break-words">
+                                                                    {{ $line->description ?? 'Item' }}
+                                                                </p>
+                                                                <div class="flex items-center gap-4 mt-2">
+                                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                                        Qty: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ $line->quantity }}</span>
+                                                                    </span>
+                                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                                        Unit: <span class="font-semibold text-gray-700 dark:text-gray-300">${{ number_format($line->unit_price, 2) }}</span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-right flex-shrink-0">
+                                                                <p class="text-sm font-bold text-gray-900 dark:text-white">
+                                                                    ${{ number_format($line->line_total, 2) }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 @endforeach
-                                                @if($quotation->lines->count() > 3)
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400 italic">
-                                                        +{{ $quotation->lines->count() - 3 }} more items
-                                                    </p>
+
+                                                @if($quotation->lines->count() > 5)
+                                                    <div class="text-center py-3">
+                                                        <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                                            +{{ $quotation->lines->count() - 5 }} more {{ Str::plural('item', $quotation->lines->count() - 5) }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                            Click "View Details" to see all items
+                                                        </p>
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>

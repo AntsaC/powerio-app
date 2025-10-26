@@ -17,7 +17,7 @@ class SolarPanelCalculatorMultiTypeStrategy extends SolarPanelCalculatorStrategy
 
     public function generateSolarPanelCalculation(Project $project, float $peakPower): SolarPanelCalculationDTO
     {
-        $solarPanels = $this->solarPanelRepository->getAllOrderedByCapacity();
+        $solarPanels = $this->solarPanelRepository->getAllOrderedByNominalPower();
 
         $calculations = [];
         $remainingPower = $peakPower;

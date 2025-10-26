@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 class SolarPanelRepository
 {
-    public function getAllOrderedByCapacity(): Collection
+    public function getAllOrderedByNominalPower(): Collection
     {
-        return SolarPanel::orderBy('system_capacity', 'desc')->get();
+        return SolarPanel::orderBy('nominal_power', 'desc')->get();
     }
 }
