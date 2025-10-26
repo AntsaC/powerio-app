@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
@@ -17,6 +18,7 @@ class Project extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'customer_id',
         'name',
         'description',
         'status',
@@ -40,6 +42,17 @@ class Project extends Model
         'system_capacity' => 'decimal:2'
     ];
 
+    /**
+     * Get the customer that owns this project
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Get all quotations for this project
+     */
     public function quotations(): HasMany
     {
         return $this->hasMany(Quotation::class);

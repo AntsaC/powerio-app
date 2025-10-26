@@ -36,7 +36,6 @@ class QuotationFactory extends Factory
             'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
             'notes' => fake()->optional()->paragraph(),
-            'terms_and_conditions' => fake()->optional()->paragraphs(3, true),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -48,6 +49,7 @@ class ProjectFactory extends Factory
         $selectedLocation = fake()->randomElement($locations);
 
         return [
+            'customer_id' => Customer::factory(),
             'name' => fake()->company() . ' Solar Project',
             'description' => fake()->sentence(20),
             'status' => fake()->randomElement(['pending', 'in_progress', 'completed', 'on_hold', 'cancelled']),
