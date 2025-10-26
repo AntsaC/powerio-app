@@ -2,103 +2,61 @@
 
 namespace App\Services\Quotation;
 
+use App\DTOs\QuotationTotals;
 use App\Models\Project;
 use App\Models\Quotation;
 
 class QuotationGeneratorService
 {
-    private const TAX_RATE = 10.0; // 10% tax
     private const QUOTATION_VALIDITY_DAYS = 30;
 
     public function __construct(
         private QuotationSolarPanelService $solarPanelService,
-        private QuotationOptionService $optionService
+        private QuotationOptionService $optionService,
+        private QuotationTotalCalculator $totalCalculator
     ) {
     }
 
-    /**
-     * Generate a quotation for a project using the specified strategy and options
-     */
+
     public function generate(
         Project $project,
         string $strategyClass,
         array $optionIds = []
     ): Quotation {
-        // Calculate solar panels using the selected strategy
-        $calculation = $this->solarPanelService->calculate($project, $strategyClass);
+        $solarPanelCalculation = $this->solarPanelService->calculate($project, $strategyClass);
 
-        if (!$calculation) {
+        if (!$solarPanelCalculation) {
             throw new \Exception('No suitable solar panels found for this project configuration.');
         }
 
-        // Get selected options
         $selectedOptions = $this->optionService->getSelectedOptions($optionIds);
 
-        // Calculate totals
-        $totals = $this->calculateTotals($calculation, $selectedOptions);
+        $totals = $this->totalCalculator->calculate($solarPanelCalculation, $selectedOptions);
 
-        // Create quotation
-        $quotation = $this->createQuotation($project, $strategyClass, $totals);
+        $quotation = $this->createQuotation($project, $totals);
 
-        // Add quotation lines
-        $this->solarPanelService->addLinesToQuotation($quotation, $calculation);
+        $this->solarPanelService->addLinesToQuotation($quotation, $solarPanelCalculation);
         $this->optionService->addLinesToQuotation($quotation, $selectedOptions);
 
         return $quotation;
     }
 
-    /**
-     * Calculate totals for the quotation
-     */
-    private function calculateTotals($calculation, $selectedOptions): array
-    {
-        $solarPanelSubtotal = $this->solarPanelService->calculateSubtotal($calculation);
-        $optionsSubtotal = $this->optionService->calculateSubtotal($selectedOptions);
-        $subtotal = $solarPanelSubtotal + $optionsSubtotal;
-        $taxAmount = $this->calculateTax($subtotal);
-        $totalAmount = $subtotal + $taxAmount;
-
-        return [
-            'subtotal' => $subtotal,
-            'tax_rate' => self::TAX_RATE,
-            'tax_amount' => $taxAmount,
-            'total_amount' => $totalAmount,
-        ];
-    }
-
-    /**
-     * Calculate tax amount
-     */
-    private function calculateTax(float $subtotal): float
-    {
-        return $subtotal * (self::TAX_RATE / 100);
-    }
-
-    /**
-     * Create the quotation record
-     */
     private function createQuotation(
         Project $project,
-        string $strategyClass,
-        array $totals
+        QuotationTotals $totals
     ): Quotation {
         return $project->quotations()->create([
             'quotation_number' => $this->generateQuotationNumber(),
             'quotation_date' => now(),
             'valid_until' => now()->addDays(self::QUOTATION_VALIDITY_DAYS),
             'status' => 'draft',
-            'subtotal' => $totals['subtotal'],
-            'tax_rate' => $totals['tax_rate'],
-            'tax_amount' => $totals['tax_amount'],
-            'discount_amount' => 0,
-            'total_amount' => $totals['total_amount'],
-            'notes' => 'Strategy used: ' . class_basename($strategyClass),
+            'subtotal' => $totals->subtotal,
+            'tax_rate' => $totals->taxRate,
+            'tax_amount' => $totals->taxAmount,
+            'total_amount' => $totals->totalAmount,
         ]);
     }
 
-    /**
-     * Generate a unique quotation number
-     */
     private function generateQuotationNumber(): string
     {
         return 'QUO-' . strtoupper(uniqid());
