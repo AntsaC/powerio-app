@@ -90,7 +90,11 @@ class QuotationPDFGenerator
 
     protected function createPDF(array $data): PDF
     {
-        return FacadePdf::loadView($this->view, $data);
+        return FacadePdf::loadView($this->view, $data)
+            ->setPaper($this->paperConfig['format'], $this->paperConfig['orientation'])
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('defaultFont', 'DejaVu Sans');
     }
 
     protected function generateFilename(Quotation $quotation): string

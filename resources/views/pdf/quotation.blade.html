@@ -26,26 +26,23 @@
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 28px;
             color: #2563eb;
             margin-bottom: 10px;
         }
 
         .header-info {
+            display: flex;
+            justify-content: space-between;
             margin-top: 20px;
         }
 
         .company-info {
-            display: inline-block;
-            width: 48%;
-            vertical-align: top;
-            margin-right: 2%;
+            flex: 1;
         }
 
         .quotation-info {
-            display: inline-block;
-            width: 48%;
-            vertical-align: top;
+            flex: 1;
             text-align: right;
         }
 
@@ -66,14 +63,14 @@
         }
 
         .info-row {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
 
         .info-row > div {
-            display: inline-block;
-            width: 48%;
-            vertical-align: top;
-            margin-right: 2%;
+            flex: 1;
+            margin-right: 20px;
         }
 
         .info-row > div:last-child {
@@ -117,6 +114,7 @@
         }
 
         .totals {
+            margin-top: 20px;
             float: right;
             width: 300px;
         }
@@ -139,6 +137,29 @@
 
         .totals table tr:last-child td {
             border-bottom: none;
+        }
+
+        .notes {
+            clear: both;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-left: 4px solid #2563eb;
+        }
+
+        .notes h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #2563eb;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            font-size: 10px;
+            color: #6b7280;
         }
 
         .badge {
@@ -208,6 +229,9 @@
                 @if($customer->city || $customer->state || $customer->postal_code)
                     <p>{{ collect([$customer->city, $customer->state, $customer->postal_code])->filter()->implode(', ') }}</p>
                 @endif
+                @if($customer->country)
+                    <p>{{ $customer->country }}</p>
+                @endif
                 @if($customer->email)
                     <p>Email: {{ $customer->email }}</p>
                 @endif
@@ -222,6 +246,9 @@
         <div class="info-block">
             <h3>Project Information</h3>
             <p><strong>{{ $project->name }}</strong></p>
+            @if($project->description)
+                <p>{{ $project->description }}</p>
+            @endif
             @if($project->location)
                 <p>Location: {{ $project->location }}</p>
             @endif
@@ -294,6 +321,18 @@
                 <td class="text-right">${{ number_format($totals['total_amount'], 2) }}</td>
             </tr>
         </table>
+    </div>
+
+    @if($quotation->notes)
+        <div class="notes">
+            <h3>Notes & Terms</h3>
+            <p>{{ $quotation->notes }}</p>
+        </div>
+    @endif
+
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p>This quotation is valid until {{ $quotation->valid_until?->format('M d, Y') ?? 'N/A' }}</p>
     </div>
 </body>
 </html>
