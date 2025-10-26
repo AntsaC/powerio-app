@@ -34,4 +34,8 @@ abstract class SolarPanelCalculatorStrategy
         return ($solarPanel->nominal_power * $panelNumber) - $peakPower;
     }
 
+    protected function computeSolarPanelNumber(float $peakPower, SolarPanel $solarPanel) : int {
+        return ceil( $peakPower /  $solarPanel->nominal_power);
+    }
+
 }

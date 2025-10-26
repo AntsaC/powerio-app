@@ -6,10 +6,13 @@ use App\Models\SolarPanel;
 
 class SolarPanelItemDTO
 {
+    public readonly float $totalCost;
+
     public function __construct(
         public readonly SolarPanel $solarPanel,
         public readonly int $numberOfPanels
     ) {
+        $this->totalCost = $this->solarPanel->price * $this->numberOfPanels;
     }
 
     public static function create(
@@ -34,7 +37,8 @@ class SolarPanelItemDTO
                 'efficiency' => $this->solarPanel->efficiency,
                 'price' => $this->solarPanel->price,
             ],
-            'number_of_panels' => $this->numberOfPanels
+            'number_of_panels' => $this->numberOfPanels,
+            'total_cost' => $this->totalCost
         ];
     }
 }

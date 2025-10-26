@@ -6,7 +6,6 @@ use App\Contracts\SolarPanelCalculatorStrategy;
 use App\DTO\SolarPanelCalculationDTO;
 use App\DTO\SolarPanelItemDTO;
 use App\Models\Project;
-use App\Models\SolarPanel;
 use App\Repositories\SolarPanelRepository;
 
 class SolarPanelCalculatorOneTypeStrategy extends SolarPanelCalculatorStrategy
@@ -42,7 +41,4 @@ class SolarPanelCalculatorOneTypeStrategy extends SolarPanelCalculatorStrategy
         return new SolarPanelCalculationDTO($suitableSolarPanelItem ? [$suitableSolarPanelItem] : []);
     }
 
-    private function computeSolarPanelNumber(float $peakPower, SolarPanel $solarPanel) : int {
-        return ceil( $peakPower /  $solarPanel->nominal_power);
-    }
 }
