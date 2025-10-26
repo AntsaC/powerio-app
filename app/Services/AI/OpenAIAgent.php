@@ -13,7 +13,7 @@ class OpenAIAgent implements AgentIAInterface
         private string $model = ''
     )
     {
-        $this->model = $model ?: config('services.openai.model', 'gpt-5-mini');
+        $this->model = $model ?: config('services.openai.model', 'gpt-4-1-mini');
     }
 
     public function sendMessage(string $message, array $context = []): string
