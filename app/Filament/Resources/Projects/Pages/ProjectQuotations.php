@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
-use App\Mail\QuotationMail;
 use App\Models\Quotation;
+use App\Services\QuotationEmailSender;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
-use Illuminate\Support\Facades\Mail;
 
 class ProjectQuotations extends Page
 {
@@ -18,9 +17,12 @@ class ProjectQuotations extends Page
 
     protected string $view = 'filament.resources.projects.pages.project-quotations';
 
-    public function mount(int|string $record): void
+    private QuotationEmailSender $quotationEmailSender;
+
+    public function mount(QuotationEmailSender $quotationEmailSender, int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
+        $this->quotationEmailSender = $quotationEmailSender;
     }
 
     public function getQuotations()
@@ -35,10 +37,12 @@ class ProjectQuotations extends Page
     {
         $quotation = Quotation::with(['project.customer'])->findOrFail($quotationId);
 
-        if (!$quotation->project->customer || !$quotation->project->customer->email) {
+        $validation = $this->quotationEmailSender->validateRecipient($quotation);
+
+        if (!$validation['valid']) {
             Notification::make()
-                ->title('No customer email')
-                ->body('This quotation does not have a customer email address.')
+                ->title('Cannot send email')
+                ->body($validation['message'])
                 ->warning()
                 ->send();
 
@@ -46,12 +50,11 @@ class ProjectQuotations extends Page
         }
 
         try {
-            Mail::to($quotation->project->customer->email)
-                ->send(new QuotationMail($quotation));
+            $this->quotationEmailSender->sendToCustomer($quotation);
 
             Notification::make()
                 ->title('Email sent successfully')
-                ->body("Quotation has been sent to {$quotation->project->customer->email}")
+                ->body("Quotation has been sent to {$validation['email']}")
                 ->success()
                 ->send();
         } catch (\Exception $e) {

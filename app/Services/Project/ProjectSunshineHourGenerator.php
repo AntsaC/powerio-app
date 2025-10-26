@@ -15,13 +15,17 @@ class ProjectSunshineHourGenerator
     ) {
     }
 
-    /**
-     * Generate sunshine hours for a project based on location.
-     *
-     * @param Project $project
-     * @return SunshineHoursDTO
-     * @throws \Exception
-     */
+    public function generateAndPersist(Project $project) {
+        $sunshineHours = $this->generate($project);
+
+        $project->update([
+            'start_sunshine_hours' => $sunshineHours->startSunshineHours,
+            'end_sunshine_hours' => $sunshineHours->endSunshineHours,
+        ]);
+
+        $project->refresh();
+    }
+
     public function generate(Project $project): SunshineHoursDTO
     {
         if (empty($project->location)) {

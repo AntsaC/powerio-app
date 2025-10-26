@@ -29,19 +29,11 @@ class ProjectDetail extends Page
 
         try {
             $generator = app(ProjectSunshineHourGenerator::class);
-            $sunshineHours = $generator->generate($this->record);
-
-            $this->record->update([
-                'start_sunshine_hours' => $sunshineHours->startSunshineHours,
-                'end_sunshine_hours' => $sunshineHours->endSunshineHours,
-            ]);
-
-            $this->record->refresh();
+            $generator->generateAndPersist($this->record);
 
             Notification::make()
                 ->success()
                 ->title('Sunshine hours generated successfully')
-                ->body("Start: {$sunshineHours->startSunshineHours}h, End: {$sunshineHours->endSunshineHours}h")
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
