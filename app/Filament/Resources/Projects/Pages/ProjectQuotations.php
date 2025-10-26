@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Projects\Pages;
 
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Mail\QuotationMail;
 use App\Models\Quotation;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Mail;
 
 class ProjectQuotations extends Page
 {
@@ -31,21 +33,33 @@ class ProjectQuotations extends Page
 
     public function sendEmail(int $quotationId): void
     {
-        $quotation = Quotation::findOrFail($quotationId);
+        $quotation = Quotation::with(['project.customer'])->findOrFail($quotationId);
 
-        if ($quotation->project_id !== $this->record->id) {
+        if (!$quotation->project->customer || !$quotation->project->customer->email) {
             Notification::make()
-                ->title('Unauthorized access')
-                ->danger()
+                ->title('No customer email')
+                ->body('This quotation does not have a customer email address.')
+                ->warning()
                 ->send();
 
             return;
         }
 
-        Notification::make()
-            ->title('Email functionality coming soon')
-            ->body('The email feature will be implemented in the next update.')
-            ->info()
-            ->send();
+        try {
+            Mail::to($quotation->project->customer->email)
+                ->send(new QuotationMail($quotation));
+
+            Notification::make()
+                ->title('Email sent successfully')
+                ->body("Quotation has been sent to {$quotation->project->customer->email}")
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Email sending failed')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 }

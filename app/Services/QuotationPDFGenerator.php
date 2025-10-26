@@ -97,7 +97,7 @@ class QuotationPDFGenerator
             ->setOption('defaultFont', 'DejaVu Sans');
     }
 
-    protected function generateFilename(Quotation $quotation): string
+    public function generateFilename(Quotation $quotation): string
     {
         $number = $quotation->quotation_number ?? $quotation->id;
         $date = $quotation->quotation_date?->format('Y-m-d') ?? now()->format('Y-m-d');

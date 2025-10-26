@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Customers\Schemas;
 
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class CustomerForm
@@ -46,14 +46,6 @@ class CustomerForm
                             ->maxLength(255),
                     ])
                     ->columns(2),
-
-                Section::make('Additional Notes')
-                    ->schema([
-                        Textarea::make('notes')
-                            ->rows(4)
-                            ->maxLength(65535)
-                            ->columnSpanFull(),
-                    ]),
             ]);
     }
 }
