@@ -12,7 +12,7 @@
                         href="#"
                         color="primary"
                     >
-                        Create New Quotation
+                        Generate New Quotation
                     </x-filament::button>
                 </div>
 
