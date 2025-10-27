@@ -30,6 +30,8 @@ class ProjectResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Projet';
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Schema $schema): Schema
     {
         return $schema
