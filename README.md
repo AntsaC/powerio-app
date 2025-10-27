@@ -1,61 +1,216 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PowerIO - Solar Panel Quotation System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 + Filament 4 application for managing solar panel installation projects and generating professional quotations with AI-powered sunshine hour predictions.
 
-## About Laravel
+## Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+PowerIO is a comprehensive solution for solar energy companies to manage customer projects, calculate optimal solar panel configurations, and generate detailed quotations. The application leverages clean code principles, SOLID design patterns, and modern Laravel features to provide a maintainable and extensible codebase.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Framework**: Laravel 12.0
+- **Admin Panel**: Filament 4.0
+- **PHP**: 8.2+
+- **AI Integration**: OpenAI PHP Laravel
+- **PDF Generation**: DOMPDF
+- **Testing**: Pest
 
-## Learning Laravel
+## Key Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Customer and project management
+- Solar panel catalog with specifications
+- AI-powered sunshine hour generation based on location
+- Flexible quotation generation with multiple calculation strategies
+- PDF export and email delivery
+- Optional add-ons management
+- Clean, intuitive admin interface powered by Filament
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Architecture & Design Patterns
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+This project demonstrates professional software engineering practices using multiple design patterns and SOLID principles:
 
-## Laravel Sponsors
+### 1. Strategy Pattern
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+The core calculation engine uses the **Strategy Pattern** to provide flexible solar panel optimization algorithms.
 
-### Premium Partners
+**Abstract Base Class**: `app/Contracts/SolarPanelCalculatorStrategy.php`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```php
+abstract class SolarPanelCalculatorStrategy
+{
+    public const LOSS_FACTOR = 0.8;
+    public const POWER_MARGIN = 100;
 
-## Contributing
+    public function calculate(Project $project): SolarPanelCalculationDTO {
+        $peakPower = $this->computePeakPower($project);
+        return $this->generateSolarPanelCalculation($project, $peakPower);
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    abstract protected function generateSolarPanelCalculation(
+        Project $project,
+        float $peakPower
+    ): ?SolarPanelCalculationDTO;
+}
+```
 
-## Code of Conduct
+**Concrete Implementations**:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **SolarPanelCalculatorOneTypeStrategy** (`app/Services/SolarPanel/SolarPanelCalculatorOneTypeStrategy.php`)
+   - Selects a single panel type that best matches the power requirements
+   - Minimizes excess power generation
+   - Ideal for uniform installations
 
-## Security Vulnerabilities
+2. **SolarPanelCalculatorMultiTypeStrategy** (`app/Services/SolarPanel/SolarPanelCalculatorMultiTypeStrategy.php`)
+   - Combines multiple panel types for optimal coverage
+   - Uses greedy algorithm to minimize cost
+   - Provides flexibility for complex installations
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 2. Data Transfer Objects (DTOs)
 
+DTOs ensure type-safe data transfer between layers:
+
+**Key DTOs**:
+- `SolarPanelCalculationDTO`: Contains calculation results with utility methods
+- `SolarPanelItemDTO`: Represents individual panel items with auto-calculated totals
+- `SunshineHoursDTO`: AI-generated sunshine hour data
+- `QuotationTotals`: Immutable quotation totals
+
+```php
+// app/DTO/SolarPanelItemDTO.php
+readonly class SolarPanelItemDTO
+{
+    public float $totalCost;
+
+    private function __construct(
+        public SolarPanel $solarPanel,
+        public int $numberOfPanels
+    ) {
+        $this->totalCost = $this->solarPanel->price * $this->numberOfPanels;
+    }
+
+    public static function create(SolarPanel $solarPanel, int $numberOfPanels): self
+    {
+        return new self($solarPanel, $numberOfPanels);
+    }
+}
+```
+
+**Benefits**:
+- Immutable data structures (readonly properties)
+- Type safety throughout the application
+- Factory methods for controlled instantiation
+- No logic leakage into models
+
+### 3. Dependency Injection
+
+All services use constructor injection for dependencies:
+
+```php
+// app/Services/Quotation/QuotationGeneratorService.php
+class QuotationGeneratorService
+{
+    public function __construct(
+        private QuotationSolarPanelService $solarPanelService,
+        private QuotationOptionService $optionService,
+        private QuotationTotalCalculator $totalCalculator
+    ) {}
+}
+```
+
+Bindings are configured in `AppServiceProvider`:
+
+```php
+$this->app->bind(AgentIAInterface::class, function ($app) {
+    $model = config('services.openai.model', 'gpt-4o');
+    return new OpenAIAgent($model);
+});
+```
+
+### 4. Dependency inversion
+
+Contracts define behavior without implementation details:
+
+```php
+// app/Contracts/AgentIAInterface.php
+interface AgentIAInterface
+{
+    public function sendMessage(string $message, array $context = []): string;
+
+    public function sendMessageWithJsonOutput(
+        string $message,
+        array $jsonSchema = []
+    ): array;
+
+    public function getAgentName(): string;
+}
+```
+## Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd powerio
+
+# Install dependencies
+composer install
+
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Configure database and OpenAI settings in .env
+# DB_CONNECTION=mysql
+# OPENAI_API_KEY=your-api-key
+
+# Run migrations
+php artisan migrate
+
+# Seed database (optional)
+php artisan db:seed
+
+# Start development server
+php artisan serve
+```
+
+## Configuration
+
+### OpenAI Configuration
+
+Add to `.env`:
+```env
+OPENAI_API_KEY=your-api-key-here
+OPENAI_MODEL=gpt-4o-mini
+```
+
+### Email Configuration
+
+Configure mail settings in `.env` for quotation delivery:
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="noreply@powerio.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+## Testing
+
+```bash
+# Run all tests
+php artisan test
+```
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is proprietary software. All rights reserved.
+
+## Credits
+
+Built with:
+- [Laravel](https://laravel.com)
+- [Filament](https://filamentphp.com)
+- [OpenAI PHP Laravel](https://github.com/openai-php/laravel)
